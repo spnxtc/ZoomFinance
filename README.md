@@ -1,2 +1,0 @@
-# ZoomFinance
-Zoom Finance Repository
