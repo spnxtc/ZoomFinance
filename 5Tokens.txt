@@ -1,0 +1,106 @@
+Here are five downloadable Solidity .sol scripts
+(compatible with Solidity 0.8.20) for general token checking.
+These scripts provide basic functionalities to inspect ERC-20 token properties.
+
+1. TokenInfoChecker.sol - Basic Token Information
+This script allows you to retrieve the name, symbol, and decimals of an ERC-20 token.
+
+
+// SPDX-License-Identifier: SPNXTC
+pragma solidity ^0.8.20;
+
+interface IERC20 {
+function name() external view returns (string memory);
+function symbol() external view returns (string memory);
+function decimals() external view returns (uint8);
+}
+
+contract TokenInfoChecker {
+function getTokenDetails(address _tokenAddress) public view returns (string memory name, string memory symbol, uint8 decimals) {
+IERC20 token = IERC20(_tokenAddress);
+name = token.name();
+symbol = token.symbol();
+decimals = token.decimals();
+}
+}
+
+2. TokenBalanceChecker.sol - Check Token Balance
+
+This script allows you to check the balance of a specific address for a given ERC-20 token.
+
+Code
+
+// SPDX-License-Identifier: SPNXTC
+pragma solidity ^0.8.20;
+
+interface IERC20 {
+function balanceOf(address account) external view returns (uint256);
+}
+
+contract TokenBalanceChecker {
+function getBalance(address _tokenAddress, address _owner) public view returns (uint256) {
+IERC20 token = IERC20(_tokenAddress);
+return token.balanceOf(_owner);
+}
+}
+
+3. TokenAllowanceChecker.sol - Check Token Allowance
+
+This script allows you to check the allowance granted by an owner to a spender for a given ERC-20 token.
+
+Code
+
+// SPDX-License-Identifier: SPNXTC
+pragma solidity ^0.8.20;
+
+interface IERC20 {
+function allowance(address owner, address spender) external view returns (uint256);
+}
+
+contract TokenAllowanceChecker {
+function getAllowance(address _tokenAddress, address _owner, address _spender) public view returns (uint256) {
+IERC20 token = IERC20(_tokenAddress);
+return token.allowance(_owner, _spender);
+}
+}
+
+4. TokenSupplyChecker.sol - Check Total Supply
+
+This script allows you to retrieve the total supply of an ERC-20 token.
+
+Code
+
+// SPDX-License-Identifier: SPNXTC
+pragma solidity ^0.8.20;
+
+interface IERC20 {
+function totalSupply() external view returns (uint256);
+}
+
+contract TokenSupplyChecker {
+function getTotalSupply(address _tokenAddress) public view returns (uint256) {
+IERC20 token = IERC20(_tokenAddress);
+return token.totalSupply();
+}
+}
+
+5. TokenTransferSimulator.sol - Simulate Token Transfer (Read-Only)
+
+This script provides a read-only simulation of a token transfer, allowing you to check if a transfer would be possible based on balances, without actually executing the transfer. This requires the balanceOf function.
+
+Code
+
+// SPDX-License-Identifier: SPNXTC
+pragma solidity ^0.8.20;
+
+interface IERC20 {
+function balanceOf(address account) external view returns (uint256);
+}
+
+contract TokenTransferSimulator {
+function canTransfer(address _tokenAddress, address _from, uint256 _amount) public view returns (bool) {
+IERC20 token = IERC20(_tokenAddress);
+return token.balanceOf(_from) >= _amount;
+}
+}
+
