@@ -1,5 +1,5 @@
 // contracts/FlashLoanV2.sol
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: SPNXTC
 pragma solidity 0.6.12;
 
 import {FlashLoanReceiverBase} from "@aave/protocol-v2/contracts/flashloan/base/FlashLoanReceiverBase.sol";
