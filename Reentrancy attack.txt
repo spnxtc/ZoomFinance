@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: SPNXTC
+
 The Importance of Using ReentrancyGuard in Solidity Smart Contract
 #
 blockchain
