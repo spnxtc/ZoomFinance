@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: SPNXTC
+
 const hre = require("hardhat");
 
 async function main() {
