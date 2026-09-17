@@ -1,0 +1,154 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.3;
+
+interface IERC20 {
+    function approve(address spender, uint256 amount) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+}
+
+interface IPancakeRouter {
+    function swapExactETHForTokens(
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external payable returns (uint[] memory amounts);
+
+    function swapExactTokensForETH(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external returns (uint[] memory amounts);
+}
+
+interface AggregatorV3Interface {
+    function latestRoundData()
+        external
+        view
+        returns (
+            uint80 roundId,
+            int256 answer,
+            uint256 startedAt,
+            uint256 updatedAt,
+            uint80 answeredInRound
+        );
+}
+
+contract CakeAutoTrader {
+    AggregatorV3Interface public constant CAKE_USD =
+        AggregatorV3Interface(0x81FAeDDFEbc2F8Ac524327d70Cf913001732224C);
+    IPancakeRouter public router;
+    IERC20 public cakeToken;
+    address public owner;
+    uint256 public buyPrice = 3 * 1e8;     // $3 (Chainlink has 8 decimals)
+    uint256 public sellPrice = 3.5 * 1e8;  // $3.50
+    uint256 public slippage = 95;          // 95% minimum out
+
+    constructor(address _router, address _cake) {
+        router = IPancakeRouter(_router);
+        cakeToken = IERC20(_cake);
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "only owner");
+        _;
+    }
+
+    function checkPrice() public view returns (int256) {
+        (, int256 price, , , ) = CAKE_USD.latestRoundData();
+        return price;
+    }
+
+    // Anyone can call this function
+    function trade() external {
+        int256 price = checkPrice();
+
+        if (price <= int256(buyPrice)) {
+            _buy();
+        } else if (price >= int256(sellPrice)) {
+            _sell();
+        }
+    }
+
+    function _buy() internal {
+        uint256 ethBalance = address(this).balance;
+        require(ethBalance > 0, "no ETH to buy");
+
+        address ;
+        path[0] = router.WETH(); // WETH/BNB
+        path[1] = address(cakeToken);
+
+        router.swapExactETHForTokens{value: ethBalance}(
+            (ethBalance * slippage) / 100,
+            path,
+            address(this),
+            block.timestamp + 300
+        );
+    }
+
+    function _sell() internal {
+        uint256 cakeBalance = cakeToken.balanceOf(address(this));
+        require(cakeBalance > 0, "no CAKE to sell");
+
+        cakeToken.approve(address(router), cakeBalance);
+
+        address ;
+        path[0] = address(cakeToken);
+        path[1] = router.WETH();
+
+        router.swapExactTokensForETH(
+            cakeBalance,
+            (cakeBalance * slippage) / 100,
+            path,
+            address(this),
+            block.timestamp + 300
+        );
+    }
+
+    // Owner can deposit ETH
+    receive() external payable {}
+}
+
+
+pulling funds out of your smart contract after you’ve deposited ETH or tokens. In Solidity, you need a withdraw function that only the owner can call. Here’s how to do it safely:
+
+1️⃣ Withdraw ETH
+function withdrawETH(uint256 amount) external {
+    require(msg.sender == owner, "only owner");
+    require(address(this).balance >= amount, "not enough ETH");
+    payable(owner).transfer(amount);
+}
+
+
+address(this).balance → how much ETH the contract currently holds.
+
+payable(owner).transfer(amount) → sends ETH to your wallet.
+
+2️⃣ Withdraw ERC-20 tokens (e.g., CAKE)
+function withdrawToken(address tokenAddress, uint256 amount) external {
+    require(msg.sender == owner, "only owner");
+    IERC20 token = IERC20(tokenAddress);
+    require(token.balanceOf(address(this)) >= amount, "not enough tokens");
+    token.transfer(owner, amount);
+}
+
+
+Replace tokenAddress with the token you want to withdraw (e.g., CAKE token address).
+
+Sends the tokens from the contract back to your wallet.
+
+3️⃣ Example integrated with your CAKE AutoTrader
+function withdrawAllETH() external onlyOwner {
+    payable(owner).transfer(address(this).balance);
+}
+
+function withdrawAllCake() external onlyOwner {
+    uint256 balance = cakeToken.balanceOf(address(this));
+    cakeToken.transfer(owner, balance);
+}
+
+
+✅ Using onlyOwner modifier ensures only you can
