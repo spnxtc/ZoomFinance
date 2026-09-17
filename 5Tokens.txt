@@ -16,7 +16,8 @@ function decimals() external view returns (uint8);
 }
 
 contract TokenInfoChecker {
-function getTokenDetails(address _tokenAddress) public view returns (string memory name, string memory symbol, uint8 decimals) {
+function getTokenDetails(address _tokenAddress) public view returns
+(string memory name, string memory symbol, uint8 decimals) {
 IERC20 token = IERC20(_tokenAddress);
 name = token.name();
 symbol = token.symbol();
@@ -86,7 +87,9 @@ return token.totalSupply();
 
 5. TokenTransferSimulator.sol - Simulate Token Transfer (Read-Only)
 
-This script provides a read-only simulation of a token transfer, allowing you to check if a transfer would be possible based on balances, without actually executing the transfer. This requires the balanceOf function.
+This script provides a read-only simulation of a token transfer,
+allowing you to check if a transfer would be possible based on balances,
+without actually executing the transfer. This requires the balanceOf function.
 
 Code
 
